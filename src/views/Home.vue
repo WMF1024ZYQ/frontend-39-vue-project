@@ -11,7 +11,7 @@
         <el-col class="head_right">
           <div>
             欢迎39期星耀会员
-            <a href="#">退出</a>
+            <a href="javascript:;" @click="loginOut">退出</a>
           </div>
         </el-col>
       </el-row>
@@ -34,7 +34,7 @@
             </template>
             <el-menu-item index="/user">
               <i class="el-icon-menu"></i>
-              <span>用户管理</span>
+              <span>用户列表</span>
             </el-menu-item>
           </el-submenu>
           <el-submenu index="2">
@@ -98,7 +98,14 @@
   </el-container>
 </template>
 <script>
-export default {};
+export default {
+  methods: {
+    loginOut() {
+      localStorage.removeItem("token");
+      this.$router.push("/login");
+    }
+  }
+};
 </script>
 
 <style>

@@ -54,7 +54,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           axios({
-            url: "http://localhost:8888/api/private/v1/login",
+            url: "/login",
             method: "post",
             data: this.form
           }).then(({ data: { data, meta } }) => {

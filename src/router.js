@@ -2,9 +2,12 @@ import Vue from "vue";
 import Router from "vue-router";
 import Login from "./views/Login.vue";
 import Home from "./views/Home.vue";
-import User from "./views/user.vue";
-
+import User from "./views/User.vue";
+import axios from "axios";
 Vue.use(Router);
+
+axios.defaults.baseURL = "http://localhost:8888/api/private/v1/";
+axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 
 const router = new Router({
   routes: [
