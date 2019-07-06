@@ -1,104 +1,4 @@
-<template>
-  <div>
-    <!-- 面包屑 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-    </el-breadcrumb>
-    <!-- 搜索栏 -->
-    <el-row type="flex" :gutter="20">
-      <el-col :span="8">
-        <el-input
-          placeholder="请输入内容"
-          class="input-with-select"
-          v-model="query"
-          @keyup.enter.native="querySearchUser"
-        >
-          <el-button slot="append" icon="el-icon-search" @click="querySearchUser"></el-button>
-        </el-input>
-      </el-col>
-      <el-col>
-        <el-button type="success" plain @click="addUserModal">添加用户</el-button>
-      </el-col>
-    </el-row>
-
-    <!-- 表格 -->
-    <el-table :data="userList" stripe style="width: 100%">
-      <el-table-column prop="username" label="姓名" width="180"></el-table-column>
-      <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
-      <el-table-column prop="mobile" label="电话"></el-table-column>
-      <el-table-column label="用户状态">
-        <template v-slot="{row}">
-          <el-switch
-            v-model="row.mg_state"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            @change="editState(row)"
-          ></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作">
-        <template v-slot="{row}">
-          <el-button type="primary" icon="el-icon-edit" plain size="mini" @click="editUser(row.id)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" plain size="mini" @click="delUser(row.id)"></el-button>
-          <el-button type="success" icon="el-icon-check" plain size="mini">分配角色</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :total="total"
-      :page-size="pagesize"
-      @current-change="onchangePage"
-      :current-page="pagenum"
-    ></el-pagination>
-    <!-- 添加用户 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogFormVisible">
-      <el-form :model="user" :rules="rules" ref="addRuleForm">
-        <el-form-item label="用户名" label-width="100px" prop="username">
-          <el-input v-model="user.username" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" label-width="100px" prop="password">
-          <el-input v-model="user.password" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱" label-width="100px" prop="email">
-          <el-input v-model="user.email" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="手机" label-width="100px" prop="mobile">
-          <el-input v-model="user.mobile" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="addDialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addUserRequest('addRuleForm')">确 定</el-button>
-      </div>
-    </el-dialog>
-
-    <!-- 修改用户信息 -->
-    <el-dialog title="修改用户信息" :visible.sync="editDialogFormVisible">
-      <el-form :model="editUserModel" :rules="rules" ref="addRuleForm">
-        <el-form-item label="用户名" label-width="100px">
-          <el-tag type="info" v-text="editUserModel.username"></el-tag>
-        </el-form-item>
-
-        <el-form-item label="邮箱" label-width="100px" prop="email">
-          <el-input v-model="editUserModel.email" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="手机" label-width="100px" prop="mobile">
-          <el-input v-model="editUserModel.mobile" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="editDialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editUserRequest('addRuleForm')">确 定</el-button>
-      </div>
-    </el-dialog>
-  </div>
-</template>
-
-<script>
+/* eslint-disable no-console */
 import axios from "axios";
 export default {
   data() {
@@ -110,6 +10,7 @@ export default {
       query: "",
       addDialogFormVisible: false,
       editDialogFormVisible: false,
+      addRoleDialogFormVisible: false,
       user: {
         username: "",
         password: "",
@@ -155,7 +56,12 @@ export default {
             trigger: "blur"
           }
         ]
-      }
+      },
+      addRoleModel: {
+        username: "",
+        rid: 0
+      },
+      roleList: []
     };
   },
   methods: {
@@ -247,9 +153,10 @@ export default {
             data: this.user
           });
           if (meta.status === 201) {
+            this.promptMessage(meta.msg, "success");
+            this.renderUser();
             this.addDialogFormVisible = false;
             this.$refs[rolesName].resetFields();
-            this.promptMessage(meta.msg, "success");
           }
         } else {
           return false;
@@ -287,6 +194,39 @@ export default {
           });
         }
       });
+    },
+    addRole(id) {
+      axios({
+        url: `users/${id}`
+      }).then(res => {
+        this.addRoleModel = res.data.data;
+        console.log(this.addRoleModel);
+        axios({
+          url: "roles"
+        }).then(res => {
+          this.roleList = res.data.data;
+          console.log(this.roleList);
+        });
+      });
+      this.addRoleDialogFormVisible = true;
+    },
+    async addRoleRequest() {
+      let {
+        data: { meta }
+      } = await axios({
+        url: `users/${this.addRoleModel.id}/role`,
+        method: "put",
+        data: {
+          rid: this.addRoleModel.rid
+        }
+      });
+      if (meta.status === 200) {
+        this.promptMessage(meta.msg, "success");
+        this.addRoleDialogFormVisible = false;
+        this.renderUser();
+      } else {
+        this.promptMessage(meta.msg, "error");
+      }
     }
   },
   //钩子函数
@@ -294,14 +234,3 @@ export default {
     this.renderUser();
   }
 };
-</script>
-
-<style>
-.el-breadcrumb {
-  height: 50px;
-  line-height: 50px !important;
-  font-size: 16px !important;
-  background-color: #d4dae0;
-  padding-left: 10px;
-}
-</style>

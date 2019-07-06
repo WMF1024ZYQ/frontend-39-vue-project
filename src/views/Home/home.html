@@ -1,0 +1,39 @@
+<el-container>
+  <el-header>
+    <el-row type="flex" class="row-bg" justify="space-between" align="middle">
+      <el-col :span="6">
+        <img src="../../assets/logo.png" alt />
+      </el-col>
+      <el-col>
+        <h1>品优购后台管理系统</h1>
+      </el-col>
+      <el-col :span="6" class="head_right">
+        <div>
+          欢迎39期星耀会员
+          <a href="javascript:;" @click="loginOut">退出</a>
+        </div>
+      </el-col>
+    </el-row>
+  </el-header>
+  <el-container>
+    <el-aside width="200px">
+      <el-menu :default-active="$route.path" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff"
+        active-text-color="#ffd04b" :unique-opened="true" :router="true">
+        <el-submenu v-for="first in rightsList" :index="first.id +''">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span>{{first.authName}}</span>
+          </template>
+          <el-menu-item v-for="second in first.children" :key="second.id" :index="'/' + second.path">
+            <i class="el-icon-menu"></i>
+            <span>{{second.authName}}</span>
+          </el-menu-item>
+        </el-submenu>
+
+      </el-menu>
+    </el-aside>
+    <el-main>
+      <router-view></router-view>
+    </el-main>
+  </el-container>
+</el-container>

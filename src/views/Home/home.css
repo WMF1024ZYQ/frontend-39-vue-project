@@ -1,0 +1,38 @@
+.el-container {
+  height: 100%;
+}
+
+.el-header {
+  padding: 0 !important;
+}
+
+.row-bg {
+  background-color: #b3c1cd;
+}
+
+.el-container .el-header img {
+  width: 200px;
+}
+.el-container .el-header h1 {
+  width: 100%;
+  font-size: 28px;
+  text-align: center;
+  color: #fff;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.head_right {
+  text-align: right;
+  padding-right: 20px;
+  font-weight: bold;
+}
+
+.head_right a {
+  color: orange;
+}
+
+.el-menu-vertical-demo.el-menu {
+  height: 100%;
+}
